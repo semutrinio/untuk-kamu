@@ -3,7 +3,7 @@ var qmakeProgName = "QuizFaber";
 var qmakeURL = 'www.quizfaber.com/';
 var dhtmlEnabled = 1;
 var html5Enabled = 1;
-var frameEnabled = 0;
+var frameEnabled = 1;
 var charset = 'Windows-1252';
 var soundEnable = 0;
 var okSound='';
@@ -2116,14 +2116,6 @@ str += " - "+GetRemFromMark(voto);
 return str;
 }
 }
-function startFloatLayer()
-{
-var y = window.innerHeight + window.pageYOffset - 40;
-document.getElementById('FloatingStatusbarPanel').style.position = "absolute";
-document.getElementById('FloatingStatusbarPanel').style.left = "10px";
-document.getElementById('FloatingStatusbarPanel').style.top = y + "px";
-setTimeout("startFloatLayer()", 100);
-}
 function getHTMLResultBox(feedback, title, bodyMsg, n)
 {
 var msg;
@@ -2157,7 +2149,7 @@ msg += bodyMsg + "<HR>";
 msg += "</SPAN>";
 msg += "<INPUT TYPE='BUTTON' VALUE='OK' class='question_feedback_botton' ";
 if (resultBoxKind == 0) {
-msg += "onClick='hideWindow(" + n + ")'";
+msg += "onClick='parent.hideWindow(" + n + ")'";
 }
 else {
 msg += "onClick='self.close()'";
@@ -2170,7 +2162,7 @@ return getHTMLResultBox(-2, "Selected answer", "", n);
 }
 function getBooleanAnswer(n,m)
 {
-var title,msg="";
+var title, msg = "";
 var feedback = 0;
 if (nScore[n] == getNumAns(n)) {
 feedback = 1;
@@ -2184,7 +2176,7 @@ feedback = 0;
 title = "Right Answers " + nScore[n] + " / " + getNumAns(n);
 if (nScore[n]<getNumAns(n))
 msg = "Wrong Answers : " + getListOfMistake(n);
-return getHTMLResultBox(feedback, title, msg, n);
+return getHTMLResultBox(feedback,title,msg,n);
 }
 function getRightAnswer(n,m,explan)
 {
@@ -2204,7 +2196,7 @@ title = "Wrong!<BR>The correct answer was " + getListOfRightAns(n);
 }
 else {
 title = "Wrong!";
-} 
+}
 for (i=0;i<explan.length; i++) {
 if (explan[i]!="") {
 msg+=explan[i]+"<BR>";
@@ -2238,50 +2230,46 @@ var i,count;
 var explan = new initListOfRemark(n);
 var layer;
 var table;
-layer = document.getElementById("hideTxt"+n); 
-table = document.getElementById("hideAns"+n); 
+layer = frames.quiz_main.document.getElementById("hideTxt"+n); 
+table = frames.quiz_main.document.getElementById("hideAns"+n);   
 /*}
 else {
-layer = document.getElementById("hideTxt");
-table = document.getElementById("hideAns");
+layer = frames.quiz_main.document.getElementById("hideTxt");
+table = frames.quiz_main.document.getElementById("hideAns");
 }*/
 if (silent==1) {
+if (questSlide==0) {
 ShowResultBox(getRispostaSelezionata(n,m),layer,table);
+}
 }
 else {
 if (valid[n]==1) {
 ShowResultBox(getRightAnswer(n,m,explan),layer,table);
-if (soundEnable==1)
-PlaySound('okSoundID');
+PlaySoundFile(okSound);
 }
 else {
 ShowResultBox(getWrongAnswer(n,m,explan),layer,table);
-if (soundEnable==1)
-PlaySound('errSoundID');
+PlaySoundFile(errSound);
 }
 }
 end_test = CountAnswers();
-UpdateSlideMenu();
+PrintStatusBar();
+PrintBottomFrame();
 if (end_test==1) {
 window.status = "";
 window.alert("You have answered all of the questions");
 EndQuiz();
-}
-else {
-PrintStatusBar();
 }
 return end_test;
 }
 function PrintOpenAnswer(n) {
 end_test = CountAnswers();
-UpdateSlideMenu();
+PrintStatusBar();
+PrintBottomFrame();
 if (end_test==1) {
 window.status = "";
 window.alert("You have answered all of the questions");
 EndQuiz();
-}
-else {
-PrintStatusBar();
 }
 return end_test;
 }
@@ -2290,29 +2278,29 @@ function PrintBooleanAnswer(n,m)
 var i,count;
 var layer;
 var table;
-layer = document.getElementById("hideTxt"+n); 
-table = document.getElementById("hideAns"+n); 
+layer = frames.quiz_main.document.getElementById("hideTxt"+n); 
+table = frames.quiz_main.document.getElementById("hideAns"+n); 
 /*}
 else {
-layer = document.getElementById("hideTxt");
-table = document.getElementById("hideAns");
+layer = frames.quiz_main.document.getElementById("hideTxt");
+table = frames.quiz_main.document.getElementById("hideAns");
 }*/
 if (silent==0) {
 ShowResultBox(getBooleanAnswer(n,m),layer,table);
-if (soundEnable==1)
 PlaySoundBooleanAns(n);
 }
-else
+else {
+if (questSlide==0) {
 ShowResultBox(getRispostaSelezionata(n,m),layer,table);
+}
+}
 end_test = CountAnswers();
-UpdateSlideMenu();
+PrintStatusBar();
+PrintBottomFrame();
 if (end_test==1) {
 window.status = "";
 window.alert("You have answered all of the questions");
 EndQuiz();
-}
-else {
-PrintStatusBar();
 }
 return end_test;
 }
@@ -2321,29 +2309,29 @@ function PrintQuestionScore(n,m)
 var i,count;
 var layer;
 var table;
-layer = document.getElementById("hideTxt"+n); 
-table = document.getElementById("hideAns"+n); 
-/* }
+layer = frames.quiz_main.document.getElementById("hideTxt"+n); 
+table = frames.quiz_main.document.getElementById("hideAns"+n); 
+/*}
 else {
-layer = document.getElementById("hideTxt");
-table = document.getElementById("hideAns");
+layer = frames.quiz_main.document.getElementById("hideTxt");
+table = frames.quiz_main.document.getElementById("hideAns"); 
 }*/
 if (silent==0) {
 ShowResultBox(getQuestionScore(n,m),layer,table);
-if (soundEnable==1)
 PlaySoundWithScore(maxScore[n]);
 }
-else
+else {
+if (questSlide==0) {
 ShowResultBox(getRispostaSelezionata(n,m),layer,table);
+}
+}
 end_test = CountAnswers();
-UpdateSlideMenu();
+PrintStatusBar();
+PrintBottomFrame();
 if (end_test==1) {
 window.status = "";
 window.alert("You have answered all of the questions");
 EndQuiz();
-}
-else {
-PrintStatusBar();
 }
 return end_test;
 }
@@ -2364,167 +2352,186 @@ SetInnerText(hideTxtObj,htmlTag);
 }
 }
 }
-function hideWindow(n) 
-{
-var checkObj = document.getElementById("check"+n);
-checkObj.className='checkShow';
-var hideAnsObj = document.getElementById("hideAns"+n);
+function hideWindow(n) {
+var checkObj = frames.quiz_main.document.getElementById("check" + n);
+checkObj.className = 'checkShow';
+var hideAnsObj = frames.quiz_main.document.getElementById("hideAns" + n);
+hideAnsObj.className = 'cardHide';
+/*
+if (questSlide==0) {
+var hideAnsObj = frames.quiz_main.document.getElementById("hideAns"+n);
 hideAnsObj.className='cardHide';
-/*}
+}
 else {
-var hideAnsObj = document.getElementById("hideAns");
+var hideAnsObj = frames.quiz_main.document.getElementById("hideAns");
 hideAnsObj.className='cardHide';
 }*/
 }
-function UpdateSlideMenu()
-{
-if (silent==0) {
-var nRightObj = document.getElementById("nRight");
-var nWrongObj = document.getElementById("nWrong");
-SetInnerText(nRightObj,nc);  
-SetInnerText(nWrongObj,ns);  
-}
-var nToDoObj = document.getElementById("nToDo");
-SetInnerText(nToDoObj,nr);
-}
 function PrintResults() 
 {
-PrintPageResults(document, 1);
+PrintPageResults(frames.quiz_main.document, 0);
+PrintCopyright();
+}
+function PrintBottomFrame()
+{
+if (silent==0) {
+var nRightObj = frames.quiz_status.document.getElementById("nRight");
+var nWrongObj = frames.quiz_status.document.getElementById("nWrong");
+SetInnerText(nRightObj,nc);
+SetInnerText(nWrongObj,ns);   
+}
+var nToDoObj = frames.quiz_status.document.getElementById("nToDo");
+SetInnerText(nToDoObj,nr);
 }
 function PrintWrongKeyword() 
 {
-PrintOpenHTML(document, "", 1, 1);
-document.writeln(GetWrongKeyWord());
+PrintOpenHTML(frames.quiz_main.document, "", 1, 1);
+frames.quiz_main.document.writeln(GetWrongKeyWord());
+frames.quiz_main.document.writeln ("</body></html>");
+frames.quiz_main.document.close();
 PrintCopyright();
-document.writeln ("</body></html>");
-document.close();
 }
 function PrintNoReload() 
 {
-PrintOpenHTML(document, "", 1, 1);
-document.writeln(GetNoReloadableMsg());
+PrintOpenHTML(frames.quiz_main.document, "", 1, 1);
+frames.quiz_main.document.writeln(GetNoReloadableMsg());
+frames.quiz_main.document.writeln ("</body></html>");
+frames.quiz_main.document.close();
 PrintCopyright();
-document.writeln ("</body></html>");
-document.close();
+}
+function PrintCopyright() 
+{
+PrintOpenHTML(frames.quiz_status.document,"Info",1,0);
+frames.quiz_status.document.writeln("<STYLE>");
+frames.quiz_status.document.writeln("<!--");
+frames.quiz_status.document.writeln("BODY { margin-top:5px; margin-left:5px }");
+frames.quiz_status.document.writeln("-->");
+frames.quiz_status.document.writeln("</STYLE>");
+frames.quiz_status.document.writeln ("</head>");
+frames.quiz_status.document.writeln ("<body bgcolor ='#C0C0C0'>");
+if (printCpRg==1) {
+frames.quiz_status.document.writeln(GetCopyrightMsg());   
+}
+frames.quiz_status.document.writeln ("</body></html>");
+frames.quiz_status.document.close();
 }
 function AskPrintQuiz() {
 var i;
 if (window.confirm("Print quiz ?")) {
 if (questSlide==0) {
 if (confirmEachQst==0) {
-var verifyButtonIdObj = document.getElementById("verifyButtonId");
-verifyButtonIdObj.className="okButtonHidden";
+var verifyButtonObj = frames.quiz_main.document.getElementById("verifyButtonId");
+verifyButtonObj.className="okButtonHidden";
 }
 else if (questions-invisibleQuests>=1) {
 for (i=0; i<questions-invisibleQuests; i++) {
-var okButtonObj = document.getElementById("okButtonId"+i);
+var okButtonObj = frames.quiz_main.document.getElementById("okButtonId"+i);
 okButtonObj.className="okButtonHidden";
 if (silent==1) {
-			var checkObj = document.getElementById("check"+i);
-			checkObj.className='checkHide';   
-			var hideAnsObj = document.getElementById("hideAns"+i);
-			hideAnsObj.className='cardHide';         
+var hideAnsObj = frames.quiz_main.document.getElementById("hideAns"+i);
+hideAnsObj.className="cardHide";
+var checkObj = frames.quiz_main.document.getElementById("check"+i);
+checkObj.className="checkHide";
 }
 }
 }
 else {
-var okButtonObj = document.getElementById("okButtonId");
+var okButtonObj = frames.quiz_main.document.getElementById("okButtonId");
 okButtonObj.className="okButtonHidden";
-/*if (silent==1) {
-		 var checkObj = document.getElementById("check");
-		 var hideAnsObj = document.getElementById("hideAns");
-		 checkObj.className='checkHide';   
-		 hideAnsObj.className='cardHide';
-}
-*/
 if (silent == 1) {
-var checkObj = document.getElementById("check" + i);
-checkObj.className = 'checkHide';
-var hideAnsObj = document.getElementById("hideAns" + i);
-hideAnsObj.className = 'cardHide';
+var hideAnsObj = frames.quiz_main.document.getElementById("hideAns" + i);
+hideAnsObj.className = "cardHide";
+var checkObj = frames.quiz_main.document.getElementById("check" + i);
+checkObj.className = "checkHide";
+}
+/*
+if (silent==1) {
+var hideAnsObj = frames.quiz_main.document.getElementById("hideAns");
+hideAnsObj.className="cardHide";
+var checkObj = frames.quiz_main.document.getElementById("check");
+checkObj.className="checkHide";        
+}*/
 }
 }
-}
-window.print();
+frames.quiz_main.print();
 window.alert("QUIT PRINT");
-}
-}
-function PrintCopyright()
-{
-if (printCpRg==1) {
-document.writeln(GetCopyrightMsg());
 }
 }
 function ShowReviewButton()
 {
 if ((dhtmlEnabled == 1) && (reviewQuiz == 1))
 {
-var resultBtn = document.getElementById("result_btn_div");
+var resultBtn = frames.quiz_main.document.getElementById("result_btn_div");
 if (resultBtn != null) resultBtn.style.visibility = "visible";
 if (quizRetire == 1) {
-var retireBtn = document.getElementById("retire_btn_div");
+var retireBtn = frames.quiz_main.document.getElementById("retire_btn_div");
 if (retireBtn != null) retireBtn.style.visibility = "hidden";
 }
 }
 }
 function SetClock(timeStr)
 {
-var clockObj = document.getElementById("clock");
+var clockObj = frames.quiz_status.document.getElementById("clock");
 SetInnerText(clockObj,timeStr);
+}
+function PlaySoundFile(soundFile) {
+PrintOpenHTML(frames.quiz_hidden.document,"",0,1);
+frames.quiz_hidden.document.writeln ("<EMBED SRC='"+soundFile+"' AUTOSTART=TRUE HIDDEN=TRUE>");
+frames.quiz_hidden.document.writeln ("</body></html>");
+frames.quiz_hidden.document.close();
 }
 function PlaySoundBooleanAns(n)
 {
 if (nScore[n]==maxScore[n])
-PlaySound('okSoundID');
+PlaySoundFile(okSound);
 else if (nScore[n]==0)
-PlaySound('errSoundID');
+PlaySoundFile(errSound);
 else
-PlaySound('warnSoundID');
+PlaySoundFile(warnSound);
 }
 function PlaySoundWithScore(voto)
 {
 if (voto==maxvoto)
-PlaySound('okSoundID');
+PlaySoundFile(okSound);
 else if (voto==minvoto)
-PlaySound('errSoundID');
+PlaySoundFile(errSound);
 else
-PlaySound('warnSoundID');
+PlaySoundFile(warnSound);
 }
 var lastLayer = null;
 function showTooltip (thisLayer) {
-var toolTipObj = document.getElementById(thisLayer);
+var toolTipObj = frames.quiz_main.document.getElementById(thisLayer);
 toolTipObj.className = "tooltipShow";
 }
 function clearTooltip (thisLayer) {
-if (lastLayer!=null) {
+if (lastLayer!=null)
 deleteTooltip ();
-}
 lastLayer = thisLayer;
 setTimeout(deleteTooltip,1000);
 }
 function deleteTooltip () {
 if (lastLayer != null) {
-var toolTipObj = document.getElementById(lastLayer);
-toolTipObj.className  = "tooltipHide";
+var toolTipObj = frames.quiz_main.document.getElementById(lastLayer);
+toolTipObj.className  = "tooltipHide";   
 }
 lastLayer = null;
 }
 function completeInitValuate() {
  if (valid[0]==0) {
-   allAnsReport[0] = new initValuate1();
-   doValuate(0,document.domanda.score1,document.domanda.risposta1);
+   allAnsReport[0] = new frames.quiz_main.initValuate1();
+   doValuate(0,frames.quiz_main.document.domanda.score1,frames.quiz_main.document.domanda.risposta1);
  }
  if (valid[1]==0) {
-   allAnsReport[1] = new initValuate2();
-   doValuate(1,document.domanda.score2,document.domanda.risposta2);
+   allAnsReport[1] = new frames.quiz_main.initValuate2();
+   doValuate(1,frames.quiz_main.document.domanda.score2,frames.quiz_main.document.domanda.risposta2);
  }
  if (valid[2]==0) {
-   allAnsReport[2] = new initValuate3();
-   doValuate(2,document.domanda.score3,document.domanda.risposta3);
+   allAnsReport[2] = new frames.quiz_main.initValuate3();
+   doValuate(2,frames.quiz_main.document.domanda.score3,frames.quiz_main.document.domanda.risposta3);
  }
  if (valid[3]==0) {
-   allAnsReport[3] = new initValuate4();
-   doValuate(3,document.domanda.score4,document.domanda.risposta4);
+   allAnsReport[3] = new frames.quiz_main.initValuate4();
+   doValuate(3,frames.quiz_main.document.domanda.score4,frames.quiz_main.document.domanda.risposta4);
  }
  CountAnswers();
 }
